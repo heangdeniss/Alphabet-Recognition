@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digit Drawing Tool (Black BG, 64x64)</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #222; color: #fff; }
+    canvas { border: 1px solid #555; margin-top: 10px; background: #000; }
+    select, button { font-size: 16px; margin: 10px 5px; }
+  </style>
+</head>
+<body>
+  <h2>Draw a Digit (0–9)</h2>
+
+  <label for="digit-label">Digit Label:</label>
+  <select id="digit-label">
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+  </select>
+
+  <br>
+  <canvas id="canvas" width="400" height="400"></canvas>
+  <br>
+  <button onclick="save()">Save Digit as 64x64 PNG</button>
+  <button onclick="clearCanvas()">Clear</button>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const labelSelect = document.getElementById('digit-label');
+    let drawing = false;
+    let counter = {};
+
+    // Fill canvas with black
+    function fillBlack() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    fillBlack();
+
+    canvas.addEventListener('mousedown', () => drawing = true);
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+      ctx.beginPath();
+    });
+    canvas.addEventListener('mousemove', draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 20;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#fff';
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    }
+
+    function save() {
+      const label = labelSelect.value;
+      if (!counter[label]) counter[label] = 1;
+      const number = String(counter[label]).padStart(3, '0');
+
+      const resizedCanvas = document.createElement('canvas');
+      resizedCanvas.width = 64;
+      resizedCanvas.height = 64;
+      const resizedCtx = resizedCanvas.getContext('2d');
+
+      // Black background for resized image
+      resizedCtx.fillStyle = '#000';
+      resizedCtx.fillRect(0, 0, 64, 64);
+      resizedCtx.drawImage(canvas, 0, 0, 64, 64);
+
+      const link = document.createElement('a');
+      link.download = `${label}_${number}.png`;
+      link.href = resizedCanvas.toDataURL();
+      link.click();
+
+      counter[label]++;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fillBlack();
+    }
+
+    // 🔢 Shortcut: 0–9 changes label
+    // ⏎ Shortcut: Enter to save + clear
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9') {
+        labelSelect.value = e.key;
+      } else if (e.key === 'Enter') {
+        save();
+        clearCanvas();
+      }
+    });
+  </script>
+</body>
+</html>
