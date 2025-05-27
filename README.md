@@ -162,4 +162,3 @@ For issues or questions:
 ## 🎉 Enjoy!
 
 Start recognizing alphabet letters with AI! Upload images, draw letters, or take photos to see the magic of machine learning in action.
-# Alphabet-Recognition
